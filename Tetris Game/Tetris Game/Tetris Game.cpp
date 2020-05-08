@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 #include <stdio.h>
@@ -20,6 +21,38 @@ wstring tetromino[7];
 int nFieldWidth = 12;
 int nFieldHeight = 18;
 unsigned char* pField = nullptr;
+
+
+void save_score(int score_count)
+{
+	int high_score = 0;
+
+	ifstream input("high_score.txt");
+	if (!input.is_open())
+	{
+		cout << "Can't read file\n";
+	}
+	else
+	{
+		input >> high_score;
+	}
+
+	ofstream output("high_score.txt");
+	if (!output.is_open())
+	{
+		cout << "Unable to read file\n";
+		return;
+	}
+
+	if (score_count > high_score)
+	{
+		output << score_count;
+	}
+	else
+	{
+		output << high_score;
+	}
+}
 
 int Rotate(int px, int py, int r)
 {
@@ -79,8 +112,19 @@ bool DoesPieceFit(int nTetromino, int nRotation, int nPosX, int nPosY)
 	return true;
 }
 
+void print_vector(vector<int> vector)
+{
+	for (int i = 0; i < vector.size(); i++)
+	{
+		cout << vector[i] << "\t";
+	}
+	cout << "\n";
+}
+
+
 int main()
 {
+
 	// Create Screen Buffer
 	wchar_t* screen = new wchar_t[nScreenWidth * nScreenHeight];
 	for (int i = 0; i < nScreenWidth * nScreenHeight; i++) screen[i] = L' ';
@@ -143,7 +187,7 @@ int main()
 		else
 			bRotateHold = true;
 
-		// Force the piece down the playfield if it's time
+		// Force the piece down the play field if it's time
 		if (bForceDown)
 		{
 			// Update difficulty every 50 pieces
@@ -199,7 +243,7 @@ int main()
 		// Draw Field
 		for (int x = 0; x < nFieldWidth; x++)
 			for (int y = 0; y < nFieldHeight; y++)
-				screen[(y + 2) * nScreenWidth + (x + 2)] = L" ABCDEFG=#"[pField[y * nFieldWidth + x]];
+				screen[(y + 2) * nScreenWidth + (x + 2)] = L" ooooooo=|"[pField[y * nFieldWidth + x]];
 
 		// Draw Current Piece
 		for (int px = 0; px < 4; px++)
@@ -234,8 +278,15 @@ int main()
 
 	// Oh Dear
 	CloseHandle(hConsole);
-	cout << "Game Over!! Score:" << nScore << endl;
+	cout << "Game Over!!" << endl;
+	cout << endl;
+	cout << "Score:" << nScore << endl;
+	cout << endl;
 	system("pause");
+
+	save_score(nScore);
 	return 0;
+
+
 }
 
